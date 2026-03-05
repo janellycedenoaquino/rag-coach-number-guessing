@@ -3,10 +3,13 @@
 Answer each question in 3 to 5 sentences. Be specific and honest about what actually happened while you worked. This is about your process, not trying to sound perfect.
 
 ## 1. What was broken when you started?
-
 - What did the game look like the first time you ran it?
-The first time i ran my code it had many errors. 
-  - When i guess a number while checking the developer debug info it said go lower for a number that was not lower than the secret. 
+The first time i ran my code it looked fine but had many errors. 
+  
+
+- List at least two concrete bugs you noticed at the start  
+  (for example: "the secret number kept changing" or "the hints were backwards").
+- When i guess a number while checking the developer debug info it said go lower for a number that was not lower than the secret. 
   - When i said a number higher than the secret it said go higher. 
   - inside the Developer Debug Info:
       - the score says -5 instead of -10 for 2 failed attempts
@@ -19,10 +22,6 @@ The first time i ran my code it had many errors.
   - normal should be 1-50
   - hard should be from 1-100
   - title says "Guess a number between 1 and 100. attemots left: " for all of them.
-
-- List at least two concrete bugs you noticed at the start  
-  (for example: "the secret number kept changing" or "the hints were backwards").
-
 ---
 
 ## 2. How did you use AI as a teammate?
