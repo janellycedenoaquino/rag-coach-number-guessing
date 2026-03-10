@@ -1,15 +1,6 @@
 import random
 import streamlit as st
-from logic_utils import check_guess  # FIX: Refactored logic into logic_utils.py using ClaudeAI
-
-def get_range_for_difficulty(difficulty: str):
-    if difficulty == "Easy":
-        return 1, 20
-    if difficulty == "Normal":
-        return 1, 50
-    if difficulty == "Hard":
-        return 1, 100
-    return 1, 100
+from logic_utils import check_guess, get_range_for_difficulty  # FIX: Refactored logic into logic_utils.py using ClaudeAI
 
 
 def parse_guess(raw: str):
