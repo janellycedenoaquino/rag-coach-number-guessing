@@ -57,6 +57,7 @@ yes AI helped me write the test for the function "test_check_guess_requires_int_
 ## 4. What did you learn about Streamlit and state?
 
 - In your own words, explain why the secret number kept changing in the original app.
+
 because the every button we clicked on re-ran the app and it cause a new number to show.
 
 - How would you explain Streamlit "reruns" and session state to a friend who has never used Streamlit? 
@@ -64,7 +65,7 @@ because the every button we clicked on re-ran the app and it cause a new number 
 streamlit re-runs clear out the page of the session data. every info you had whiped every time you click or make any changes in the app. session state keeps the state of your application. any changes you have made stored for example you have a secret number the application should keep that number no matter what you click until you click the new game button which should wipe the state/session data
 
 - What change did you make that finally gave the game a stable secret number?
-
+wrapping the session secret in an if statement that checked if tge secret was not in the state. this makes it generate once per session and not every time we run the code.
 ---
 
 ## 5. Looking ahead: your developer habits
