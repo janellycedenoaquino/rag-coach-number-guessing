@@ -5,8 +5,10 @@ from logic_utils import check_guess  # FIX: Refactored logic into logic_utils.py
 def get_range_for_difficulty(difficulty: str):
     if difficulty == "Easy":
         return 1, 20
+    # FIXME: Normal range should be 1-50, not 1-100
     if difficulty == "Normal":
         return 1, 100
+    # FIXME: Hard range should be 1-100, not 1-50
     if difficulty == "Hard":
         return 1, 50
     return 1, 100
@@ -27,6 +29,7 @@ def parse_guess(raw: str):
     except Exception:
         return False, None, "That is not a number."
 
+    # FIXME: No range validation; negative numbers and out-of-bounds guesses are accepted
     return True, value, None
 
 
@@ -39,6 +42,7 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
         return current_score + points
 
     if outcome == "Too High":
+        # FIXME: Even-numbered attempts incorrectly add 5 points instead of subtracting; score becomes inconsistent
         if attempt_number % 2 == 0:
             return current_score + 5
         return current_score - 5
@@ -72,10 +76,11 @@ low, high = get_range_for_difficulty(difficulty)
 
 st.sidebar.caption(f"Range: {low} to {high}")
 st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
-# FIXME: Logic breaks here 
+# FIXME: Secret is not tied to difficulty; changing difficulty mid-game does not reset the secret to the new range
 if "secret" not in st.session_state:
     st.session_state.secret = random.randint(low, high)
 
+# FIXME: Attempts should start at 0, not 1; causes off-by-one in attempt count and history tracking
 if "attempts" not in st.session_state:
     st.session_state.attempts = 1
 
@@ -90,8 +95,9 @@ if "history" not in st.session_state:
 
 st.subheader("Make a guess")
 
+# FIXME: Hardcodes "1 and 100" instead of showing the actual difficulty range
+# FIXME: Attempts left is wrong because attempts starts at 1 instead of 0
 st.info(
-    # FIXME: Logic breaks here 
     f"Guess a number between 1 and 100. "
     f"Attempts left: {attempt_limit - st.session_state.attempts}"
 )
@@ -118,7 +124,7 @@ with col3:
 
 if new_game:
     st.session_state.attempts = 0
-    # FIXME: Logic breaks here 
+    # FIXME: New game always uses range 1-100, ignoring the selected difficulty
     st.session_state.secret = random.randint(1, 100)
     st.success("New game started.")
     st.rerun()

@@ -7,22 +7,22 @@ Answer each question in 3 to 5 sentences. Be specific and honest about what actu
 The first time i ran my code it looked fine but had many errors. 
   
 
-- List at least two concrete bugs you noticed at the start  
+- List at least two concrete bugs you noticed at the start
   (for example: "the secret number kept changing" or "the hints were backwards").
-- When i guess a number while checking the developer debug info it said go lower for a number that was not lower than the secret. 
-  - When i said a number higher than the secret it said go higher. 
+- [x] When i guess a number while checking the developer debug info it said go lower for a number that was not lower than the secret.
+  - [x] When i said a number higher than the secret it said go higher.
   - inside the Developer Debug Info:
-      - the score says -5 instead of -10 for 2 failed attempts
-      - the History doesn't show the first attempt
-      - attempts are accurate inside of the developer debug info but not on the title where it says "Guess a number between 1 and 100. Attempts left: 5" attempts left is always 5. 
-  - allows negative numbers to be added as a guess (should only be between the range)
-  - new game button does not work 
-  - attempts start at 1 not 0
-  - easy should be from 1-20
-  - normal should be 1-50
-  - hard should be from 1-100
-  - should normal be 8 attempts? easy be 6 and hard be 5?
-  - title says "Guess a number between 1 and 100. attemots left: " for all of them.
+      - [ ] the score says -5 instead of -10 for 2 failed attempts
+      - [ ] the History doesn't show the first attempt
+      - [ ] attempts are accurate inside of the developer debug info but not on the title where it says "Guess a number between 1 and 100. Attempts left: 5" attempts left is always 5.
+  - [ ] allows negative numbers to be added as a guess (should only be between the range)
+  - [ ] new game button does not work
+  - [ ] attempts start at 1 not 0
+  - [x] easy should be from 1-20
+  - [ ] normal should be 1-50
+  - [ ] hard should be from 1-100
+  - [x] should normal be 8 attempts? easy be 6 and hard be 5?
+  - [ ] title says "Guess a number between 1 and 100. attemots left: " for all of them.
 ---
 
 ## 2. How did you use AI as a teammate?
