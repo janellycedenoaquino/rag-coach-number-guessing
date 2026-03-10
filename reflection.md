@@ -17,10 +17,10 @@ The first time i ran my code it looked fine but had many errors.
       - [ ] attempts are accurate inside of the developer debug info but not on the title where it says "Guess a number between 1 and 100. Attempts left: 5" attempts left is always 5.
   - [ ] allows negative numbers to be added as a guess (should only be between the range)
   - [ ] new game button does not work
-  - [ ] attempts start at 1 not 0
+  - [x] attempts start at 1 not 0
   - [x] easy should be from 1-20
-  - [ ] normal should be 1-50
-  - [ ] hard should be from 1-100
+  - [x] normal should be 1-50
+  - [x] hard should be from 1-100
   - [x] should normal be 8 attempts? easy be 6 and hard be 5?
   - [ ] title says "Guess a number between 1 and 100. attemots left: " for all of them.
 ---
@@ -29,10 +29,12 @@ The first time i ran my code it looked fine but had many errors.
 
 - Which AI tools did you use on this project (for example: ChatGPT, Gemini, Copilot)? ClaudeAI
 - Give one example of an AI suggestion that was correct (including what the AI suggested and how you verified the result). 
+
 AI suggested to change the tests I had for the "test_winning_guess()" function. the variable we had with the result was a tuple. instead of storing it as a tuple AI suggested we store it in two different variables and use the assert with the value we needed. before i accepted double checked by checking what the function returned and it does return a tuple. so i accepted the changes and my tests pass.
 
 - Give one example of an AI suggestion that was incorrect or misleading (including what the AI suggested and how you verified the result). 
-When i gave ai the command to move the check_guess to logic_utils.py it didn't find the method inside of app.py so it skipped that step entirely and gave me only suggestions to code the logic inside of logic_utils.py skipping my request entirely.
+
+When i gave AI the command to move the check_guess to logic_utils.py it didn't find the method inside of app.py so it skipped that step entirely and gave me only suggestions to code the logic inside of logic_utils.py skipping my request entirely.
 
 ---
 
@@ -45,6 +47,7 @@ When i gave ai the command to move the check_guess to logic_utils.py it didn't f
   I ran the app and tested it manually. i also read the tests and made sure that they were passing and correct. ex: for the issue where the suggestion was to go higher when it should be lower. I wrote smaller numbers and ensure the suggestion was to go higher not lower and wrote larger numbers than the target and checked it said go lower. 
 
 - Did AI help you design or understand any tests? How?
+
 yes AI helped me write the test for the function "test_check_guess_requires_int_secret()" it also made sure we didn't need to cast the value to an int to be able to compare it. it fixed that error. 
 
 ---
@@ -52,7 +55,12 @@ yes AI helped me write the test for the function "test_check_guess_requires_int_
 ## 4. What did you learn about Streamlit and state?
 
 - In your own words, explain why the secret number kept changing in the original app.
-- How would you explain Streamlit "reruns" and session state to a friend who has never used Streamlit?
+because the every button we clicked on re-ran the app and it cause a new number to show.
+
+- How would you explain Streamlit "reruns" and session state to a friend who has never used Streamlit? 
+
+streamlit re-runs clear out the page of the session data. every info you had whiped every time you click or make any changes in the app. session state keeps the state of your application. any changes you have made stored for example you have a secret number the application should keep that number no matter what you click until you click the new game button which should wipe the state/session data
+
 - What change did you make that finally gave the game a stable secret number?
 
 ---
@@ -61,5 +69,13 @@ yes AI helped me write the test for the function "test_check_guess_requires_int_
 
 - What is one habit or strategy from this project that you want to reuse in future labs or projects?
   - This could be a testing habit, a prompting strategy, or a way you used Git.
+
+I learned to ask AI questions in steps, test everything as I go and make sure to commit and push my code with different changes i make to store all the changes i make and prevent getting stuck/make a mistake and have to delete everything.
+
 - What is one thing you would do differently next time you work with AI on a coding task?
+
+make branches and push my code to different branches and merge them.
+
 - In one or two sentences, describe how this project changed the way you think about AI generated code.
+
+it should be seen more as a co-working partner than a machine that does all the work for you. it should be used to learn with it. 

@@ -1,4 +1,20 @@
 from logic_utils import check_guess
+from app import get_range_for_difficulty
+
+def test_easy_range():
+    low, high = get_range_for_difficulty("Easy")
+    assert low == 1
+    assert high == 20
+
+def test_normal_range():
+    low, high = get_range_for_difficulty("Normal")
+    assert low == 1
+    assert high == 50
+
+def test_hard_range():
+    low, high = get_range_for_difficulty("Hard")
+    assert low == 1
+    assert high == 100
 
 def test_winning_guess():
     # If the secret is 50 and guess is 50, it should be a win

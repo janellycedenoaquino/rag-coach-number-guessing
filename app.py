@@ -5,12 +5,10 @@ from logic_utils import check_guess  # FIX: Refactored logic into logic_utils.py
 def get_range_for_difficulty(difficulty: str):
     if difficulty == "Easy":
         return 1, 20
-    # FIXME: Normal range should be 1-50, not 1-100
     if difficulty == "Normal":
-        return 1, 100
-    # FIXME: Hard range should be 1-100, not 1-50
-    if difficulty == "Hard":
         return 1, 50
+    if difficulty == "Hard":
+        return 1, 100
     return 1, 100
 
 
@@ -80,9 +78,8 @@ st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
 if "secret" not in st.session_state:
     st.session_state.secret = random.randint(low, high)
 
-# FIXME: Attempts should start at 0, not 1; causes off-by-one in attempt count and history tracking
 if "attempts" not in st.session_state:
-    st.session_state.attempts = 1
+    st.session_state.attempts = 0
 
 if "score" not in st.session_state:
     st.session_state.score = 0
