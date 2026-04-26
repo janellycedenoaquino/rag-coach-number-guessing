@@ -1,0 +1,24 @@
+STRATEGY: Binary Search (Optimal Play)
+
+Binary search is the mathematically optimal strategy for number guessing games. It cuts the remaining range in half with every guess, guaranteeing you find any number in the fewest possible attempts.
+
+HOW IT WORKS:
+Always guess the midpoint of your current known range.
+- Start: guess (low + high) / 2, rounded down.
+- If told "Too High": your new high becomes guess - 1.
+- If told "Too Low": your new low becomes guess + 1.
+- Repeat until you win.
+
+EXAMPLE (range 1-50):
+Guess 25 → Too Low → range is now 26-50
+Guess 38 → Too High → range is now 26-37
+Guess 31 → Too Low → range is now 32-37
+Guess 34 → Win
+
+WHY IT MATTERS BY DIFFICULTY:
+- Easy (1-20, 6 attempts): binary search wins in at most 5 guesses. You have margin to explore.
+- Normal (1-50, 8 attempts): binary search wins in at most 6 guesses. Comfortable.
+- Hard (1-100, 5 attempts): binary search wins in at most 7 guesses — but you only have 5. You MUST guess near-perfectly. No wasted guesses allowed.
+
+KEY INSIGHT:
+Every guess that is not near the midpoint of your remaining range is a wasted opportunity. Guessing at the edges (e.g., guessing 5 when your range is 1-50) eliminates almost nothing.

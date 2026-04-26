@@ -1,0 +1,23 @@
+STRATEGY: Common Mistakes and How to Avoid Them
+
+MISTAKE 1 — ANCHORING
+Anchoring is when you stay too close to your previous guess instead of jumping to the true midpoint.
+Example: range is 1-50, you guess 25 (Too Low), then guess 30 instead of 38.
+Fix: always recalculate the midpoint of your updated range after every hint.
+
+MISTAKE 2 — EDGE GUESSING
+Guessing near the edges of your range (e.g., guessing 2 when range is 1-50) eliminates almost nothing.
+Fix: always guess the middle. Even if your gut says "it feels like a small number," the math says guess the midpoint.
+
+MISTAKE 3 — IGNORING ELIMINATION
+After every guess, your valid range shrinks. Many players forget to update their mental range.
+Example: guessing 20 after already being told the secret is higher than 35.
+Fix: after each hint, immediately identify your new low and high before guessing again.
+
+MISTAKE 4 — PANIC GUESSING
+With few attempts left, players often guess randomly hoping to get lucky. This almost always fails.
+Fix: even with 1 attempt left, use the midpoint of your remaining range — it gives you the highest probability of winning.
+
+MISTAKE 5 — IGNORING DIFFICULTY
+Easy mode (1-20) gives you room for a few exploratory guesses. Hard mode (1-100, 5 attempts) does not. Treat each difficulty differently.
+Fix: on Hard, play optimal binary search from guess 1. No experiments.

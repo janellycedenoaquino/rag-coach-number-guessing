@@ -5,6 +5,7 @@ from logic_utils import (
     parse_guess, update_score, load_leaderboard, save_to_leaderboard,
 )
 from styles import MAIN_CSS, SECTION_LABEL_HTML, leaderboard_html, info_panel_html, debug_panel_html
+from ai_coach import get_mid_game_tip, get_postgame_review
 
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
@@ -50,6 +51,8 @@ if st.session_state.difficulty != difficulty:
     st.session_state.history = []
     st.session_state.guess_log = []
     st.session_state.leaderboard_saved = False
+    st.session_state.coach_tip = ""
+    st.session_state.coach_review = ""
 
 if "secret" not in st.session_state:
     st.session_state.secret = random.randint(low, high)
@@ -65,6 +68,10 @@ if "leaderboard_saved" not in st.session_state:
     st.session_state.leaderboard_saved = False
 if "guess_log" not in st.session_state:
     st.session_state.guess_log = []
+if "coach_tip" not in st.session_state:
+    st.session_state.coach_tip = ""
+if "coach_review" not in st.session_state:
+    st.session_state.coach_review = ""
 
 # ─── MAIN UI ───────────────────────────────────────────────────────────────────
 st.html(SECTION_LABEL_HTML)
@@ -100,6 +107,8 @@ if new_game:
     st.session_state.history = []
     st.session_state.guess_log = []
     st.session_state.leaderboard_saved = False
+    st.session_state.coach_tip = ""
+    st.session_state.coach_review = ""
     st.success("New game started.")
     st.rerun()
 
@@ -110,6 +119,15 @@ if st.session_state.status != "playing":
             f"You won! The secret was {st.session_state.secret}. "
             f"Final score: {st.session_state.score}"
         )
+        if not st.session_state.coach_review:
+            with st.spinner("🧠 Coach is reviewing your game..."):
+                st.session_state.coach_review = get_postgame_review(
+                    st.session_state.guess_log,
+                    st.session_state.secret,
+                    difficulty,
+                    won=True,
+                )
+        st.info(f"🧠 **Coach's Review**\n\n{st.session_state.coach_review}")
         if not st.session_state.leaderboard_saved:
             player_name = st.text_input("Enter your name for the leaderboard:", key="player_name")
             if st.button("Save Score 💾"):
@@ -132,6 +150,15 @@ if st.session_state.status != "playing":
                     st.error("Please enter your name before saving.")
     else:
         st.error("Game over. Start a new game to try again.")
+        if not st.session_state.coach_review:
+            with st.spinner("🧠 Coach is reviewing your game..."):
+                st.session_state.coach_review = get_postgame_review(
+                    st.session_state.guess_log,
+                    st.session_state.secret,
+                    difficulty,
+                    won=False,
+                )
+        st.info(f"🧠 **Coach's Review**\n\n{st.session_state.coach_review}")
     st.stop()
 
 # ─── GUESS LOGIC ───────────────────────────────────────────────────────────────
@@ -172,6 +199,17 @@ if submit:
             st.session_state.status = "won"
             st.rerun()
         elif st.session_state.attempts >= attempt_limit:
+            pass
+        else:
+            with st.spinner("🧠 Coach is thinking..."):
+                st.session_state.coach_tip = get_mid_game_tip(
+                    st.session_state.guess_log,
+                    difficulty,
+                    attempt_limit - st.session_state.attempts,
+                    st.session_state.secret,
+                )
+
+        if st.session_state.attempts >= attempt_limit:
             st.session_state.status = "lost"
             st.error(
                 f"Out of attempts! "
@@ -186,6 +224,9 @@ info_placeholder.html(info_panel_html(low, high, attempts_left))
 if st.session_state.guess_log:
     st.subheader("📋 Guess History")
     st.table(st.session_state.guess_log)
+
+if st.session_state.coach_tip and st.session_state.status == "playing":
+    st.info(f"🧠 **Coach's Tip**\n\n{st.session_state.coach_tip}")
 
 debug_placeholder.html(debug_panel_html(
     st.session_state.secret,

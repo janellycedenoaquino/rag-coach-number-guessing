@@ -1,0 +1,24 @@
+STRATEGY: Hard Mode Survival Guide (1-100, 5 attempts)
+
+Hard mode is unforgiving. Binary search needs up to 7 guesses to guarantee a win on a 1-100 range, but you only have 5. This means you must play nearly perfectly and use proximity hints to your advantage.
+
+OPTIMAL OPENING SEQUENCE:
+Guess 1: 50 (midpoint of 1-100)
+Guess 2: 25 or 75 depending on hint (midpoint of remaining half)
+Guess 3: midpoint of remaining quarter
+Guess 4: midpoint of remaining eighth
+Guess 5: your best remaining guess
+
+This gives you a winning range of about 6 numbers by guess 5 — manageable with proximity hints.
+
+USE PROXIMITY TO SKIP STEPS:
+If you get 🔥🔥🔥 Super hot (within 3) early, don't keep bisecting — scan those 3 numbers directly.
+If you get 🔥 Warm (within 10), tighten your range to ±10 around your guess immediately.
+
+WHAT NOT TO DO:
+- Do not open with anything other than 50. Any other opening wastes your first guess.
+- Do not guess sequentially (51, 52, 53...). You will run out of attempts.
+- Do not let the "Cold" hint demoralize you on guess 1 — that just means the secret is more than 20 away, which is expected when your range is 100 numbers wide.
+
+MINDSET:
+Hard mode rewards calm, methodical play. Every guess must eliminate as much of the range as possible. Trust the math over your instincts.

@@ -1,0 +1,23 @@
+STRATEGY: Reading Hot/Cold Proximity Hints
+
+The game gives you a proximity hint after each guess. Use it alongside the Higher/Lower hint to narrow your range faster.
+
+HINT MEANINGS:
+- 🔥🔥🔥 Super hot: your guess is within 3 of the secret. You are extremely close.
+- 🔥 Warm: your guess is within 10 of the secret.
+- 🌡️ Lukewarm: your guess is within 20 of the secret.
+- 🥶 Cold: your guess is more than 20 away from the secret.
+
+HOW TO USE PROXIMITY WITH DIRECTION:
+The Higher/Lower hint tells you which side the secret is on. The proximity hint tells you how far. Together they let you triangulate.
+
+Example:
+- You guess 30, told "Too Low" + "🔥 Warm" → secret is between 31 and 40.
+- You guess 35, told "Too High" + "🔥🔥🔥 Super hot" → secret is between 32 and 34.
+- Next guess: 33. Very likely correct.
+
+COMMON MISTAKE:
+Ignoring proximity and only using Higher/Lower. The proximity hint often lets you skip 1-2 guesses by giving you a tighter bound than pure binary search would.
+
+ON HARD MODE:
+With only 5 attempts and a range of 1-100, proximity hints become critical. If you get "🥶 Cold" early, recalibrate to the midpoint immediately — do not inch toward the answer.

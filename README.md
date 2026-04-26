@@ -39,10 +39,10 @@ It wrote the code, ran away, and now the game is unplayable.
 
 ## 📸 Demo
 
-- ![Start of game no guess](images/No_Guess.png)
+- ![Start of game no guess](assets/images/No_Guess.png)
 
 ## 🚀 Stretch Features
 
-- ![Challenge 1 Advanced](images/Challenge_1_Advanced%20Edge-Case_Testing.png)
-- ![Four Guesses](images/4_Guess.png)
-- ![Won Add name to leaderboard](images/Won_Name_for_Leaderboard.png)
+- ![Challenge 1 Advanced](assets/images/Challenge_1_Advanced%20Edge-Case_Testing.png)
+- ![Four Guesses](assets/images/4_Guess.png)
+- ![Won Add name to leaderboard](assets/images/Won_Name_for_Leaderboard.png)

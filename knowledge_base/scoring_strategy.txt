@@ -1,0 +1,22 @@
+STRATEGY: Maximizing Your Score
+
+The scoring system rewards winning early and penalizes wrong guesses.
+
+SCORING RULES:
+- Win on attempt 1: +100 points
+- Win on attempt 2: +90 points
+- Win on attempt 3: +80 points
+- Win on attempt N: +max(10, 100 - 10*(N-1)) points
+- Each wrong guess (Too High or Too Low): -5 points
+
+IMPLICATION:
+Every wrong guess costs you 5 points on top of costing you an attempt. A win on attempt 3 with 2 wrong guesses before it nets you: 80 - 10 = 70 points. The same win in 3 guesses with no wasted attempts (using binary search) nets 80 points.
+
+HOW TO MAXIMIZE SCORE:
+1. Use binary search — it wins in the fewest guesses, which gives the highest win bonus.
+2. Avoid guessing at numbers you've already eliminated — those are guaranteed -5 with no upside.
+3. On Easy mode (1-20), binary search can win in 4-5 guesses reliably, giving 60-70+ points.
+4. On Hard mode, a binary search win in 5 guesses gives 60 points — respectable given the difficulty.
+
+SCORE RECOVERY:
+If you've lost points from wrong guesses, the only way to recover is to win as early as possible. Don't give up and keep guessing randomly — every additional wrong guess makes your score worse.
