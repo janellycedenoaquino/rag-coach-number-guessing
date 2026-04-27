@@ -2,6 +2,8 @@
 
 A Streamlit number-guessing game with a real-time AI coach that watches your play, retrieves the right strategy from a small knowledge base, and explains *how to think* about your next guess — without ever leaking the secret number.
 
+**Why it matters.** Any AI helper that knows something the user shouldn't see — a quiz answer, a salary number, a confidential document — can leak it under the right phrasing. A guessing game with a known secret is a small, fully-controlled lab for testing that exact failure and the guardrails that prevent it. The patterns here (input redaction, output validation, fallbacks, RAG over a tiny knowledge base, and a deterministic eval harness) transfer directly to higher-stakes systems where a leak is more expensive than losing a round.
+
 ---
 
 ## 📦 Base Project
