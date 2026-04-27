@@ -23,6 +23,7 @@ pip-wheel-metadata/
 
 # Game data
 leaderboard.json
+player_history.json
 
 # Test and coverage artifacts
 .pytest_cache/

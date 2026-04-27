@@ -2,16 +2,15 @@ import random
 import streamlit as st
 from logic_utils import (
     check_guess, get_proximity_hint, get_range_for_difficulty,
-    parse_guess, update_score, load_leaderboard, save_to_leaderboard,
+    parse_guess, update_score, load_player_history, save_game_to_history,
 )
-from styles import MAIN_CSS, SECTION_LABEL_HTML, leaderboard_html, info_panel_html, debug_panel_html
+from styles import MAIN_CSS, SECTION_LABEL_HTML, info_panel_html, debug_panel_html
 from ai_coach import get_mid_game_tip, get_postgame_review
 
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
-
 st.html(MAIN_CSS)
 
-# ─── SIDEBAR ───────────────────────────────────────────────────────────────────
+# ─── SIDEBAR SETTINGS ──────────────────────────────────────────────────────────
 st.sidebar.markdown("## ⚙️ SETTINGS!")
 st.sidebar.markdown(
     '<p class="config-label" style="font-family:\'Oswald\',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#9b2cfa;margin:0;">DIFFICULTY LEVEL</p>',
@@ -35,8 +34,44 @@ st.sidebar.markdown(
     unsafe_allow_html=True,
 )
 
+# ─── SIGN-IN ───────────────────────────────────────────────────────────────────
+if "player_name" not in st.session_state:
+    st.session_state.player_name = ""
+
+if not st.session_state.player_name:
+    st.html(SECTION_LABEL_HTML)
+    st.markdown("### Welcome! Enter your name to start playing.")
+    name_input = st.text_input("Your name:", placeholder="e.g. Janelly")
+    if st.button("Start Playing 🚀", type="primary") and name_input.strip():
+        st.session_state.player_name = name_input.strip()
+        st.rerun()
+    st.stop()
+
+# ─── SIDEBAR HISTORY (shown after sign-in) ─────────────────────────────────────
 st.sidebar.divider()
-st.sidebar.html(leaderboard_html(load_leaderboard()))
+st.sidebar.markdown(f"### 👤 {st.session_state.player_name}")
+
+if st.sidebar.button("Sign Out", type="secondary"):
+    st.session_state.clear()
+    st.rerun()
+
+past_games = load_player_history(st.session_state.player_name)
+if past_games:
+    st.sidebar.markdown("**📖 Game History**")
+    for game in past_games:
+        icon = "✅" if game["won"] else "❌"
+        label = f"{icon} {game['difficulty']} · {game['date']}"
+        with st.sidebar.expander(label):
+            st.markdown(
+                f"**Score:** {game['score']} &nbsp;|&nbsp; "
+                f"**Attempts:** {game['attempts']}/{attempt_limit_map[game['difficulty']]}"
+            )
+            st.markdown(f"**Secret was:** {game['secret']}")
+            if game.get("coach_review"):
+                st.markdown("**🧠 Coach's Review:**")
+                st.info(game["coach_review"])
+else:
+    st.sidebar.caption("No games yet — play your first game!")
 
 # ─── SESSION STATE ─────────────────────────────────────────────────────────────
 if "difficulty" not in st.session_state:
@@ -50,7 +85,7 @@ if st.session_state.difficulty != difficulty:
     st.session_state.status = "playing"
     st.session_state.history = []
     st.session_state.guess_log = []
-    st.session_state.leaderboard_saved = False
+    st.session_state.history_saved = False
     st.session_state.coach_tip = ""
     st.session_state.coach_review = ""
 
@@ -64,8 +99,8 @@ if "status" not in st.session_state:
     st.session_state.status = "playing"
 if "history" not in st.session_state:
     st.session_state.history = []
-if "leaderboard_saved" not in st.session_state:
-    st.session_state.leaderboard_saved = False
+if "history_saved" not in st.session_state:
+    st.session_state.history_saved = False
 if "guess_log" not in st.session_state:
     st.session_state.guess_log = []
 if "coach_tip" not in st.session_state:
@@ -106,7 +141,7 @@ if new_game:
     st.session_state.status = "playing"
     st.session_state.history = []
     st.session_state.guess_log = []
-    st.session_state.leaderboard_saved = False
+    st.session_state.history_saved = False
     st.session_state.coach_tip = ""
     st.session_state.coach_review = ""
     st.success("New game started.")
@@ -114,51 +149,41 @@ if new_game:
 
 # ─── GAME OVER ─────────────────────────────────────────────────────────────────
 if st.session_state.status != "playing":
-    if st.session_state.status == "won":
+    won = st.session_state.status == "won"
+
+    if won:
         st.success(
             f"You won! The secret was {st.session_state.secret}. "
             f"Final score: {st.session_state.score}"
         )
-        if not st.session_state.coach_review:
-            with st.spinner("🧠 Coach is reviewing your game..."):
-                st.session_state.coach_review = get_postgame_review(
-                    st.session_state.guess_log,
-                    st.session_state.secret,
-                    difficulty,
-                    won=True,
-                )
-        st.info(f"🧠 **Coach's Review**\n\n{st.session_state.coach_review}")
-        if not st.session_state.leaderboard_saved:
-            player_name = st.text_input("Enter your name for the leaderboard:", key="player_name")
-            if st.button("Save Score 💾"):
-                if player_name.strip():
-                    saved = save_to_leaderboard(
-                        name=player_name.strip(),
-                        difficulty=difficulty,
-                        attempts=st.session_state.attempts,
-                        score=st.session_state.score,
-                    )
-                    if saved:
-                        st.session_state.leaderboard_saved = True
-                        st.rerun()
-                    else:
-                        st.warning(
-                            f"'{player_name.strip()}' already has a higher score on the leaderboard. "
-                            "Play again to beat it!"
-                        )
-                else:
-                    st.error("Please enter your name before saving.")
     else:
         st.error("Game over. Start a new game to try again.")
-        if not st.session_state.coach_review:
-            with st.spinner("🧠 Coach is reviewing your game..."):
-                st.session_state.coach_review = get_postgame_review(
-                    st.session_state.guess_log,
-                    st.session_state.secret,
-                    difficulty,
-                    won=False,
-                )
-        st.info(f"🧠 **Coach's Review**\n\n{st.session_state.coach_review}")
+
+    if not st.session_state.coach_review:
+        with st.spinner("🧠 Coach is reviewing your game..."):
+            st.session_state.coach_review = get_postgame_review(
+                st.session_state.guess_log,
+                st.session_state.secret,
+                difficulty,
+                won=won,
+            )
+    st.info(f"🧠 **Coach's Review**\n\n{st.session_state.coach_review}")
+
+    if not st.session_state.history_saved:
+        save_game_to_history(
+            st.session_state.player_name,
+            {
+                "difficulty": difficulty,
+                "secret": st.session_state.secret,
+                "guess_log": st.session_state.guess_log,
+                "score": st.session_state.score,
+                "attempts": st.session_state.attempts,
+                "won": won,
+                "coach_review": st.session_state.coach_review,
+            },
+        )
+        st.session_state.history_saved = True
+    st.caption("✅ Game saved to your history — check the sidebar to review it.")
     st.stop()
 
 # ─── GUESS LOGIC ───────────────────────────────────────────────────────────────
@@ -199,7 +224,13 @@ if submit:
             st.session_state.status = "won"
             st.rerun()
         elif st.session_state.attempts >= attempt_limit:
-            pass
+            st.session_state.status = "lost"
+            st.error(
+                f"Out of attempts! "
+                f"The secret was {st.session_state.secret}. "
+                f"Score: {st.session_state.score}"
+            )
+            st.rerun()
         else:
             with st.spinner("🧠 Coach is thinking..."):
                 st.session_state.coach_tip = get_mid_game_tip(
@@ -208,14 +239,6 @@ if submit:
                     attempt_limit - st.session_state.attempts,
                     st.session_state.secret,
                 )
-
-        if st.session_state.attempts >= attempt_limit:
-            st.session_state.status = "lost"
-            st.error(
-                f"Out of attempts! "
-                f"The secret was {st.session_state.secret}. "
-                f"Score: {st.session_state.score}"
-            )
 
 # ─── PANELS ────────────────────────────────────────────────────────────────────
 attempts_left = attempt_limit - st.session_state.attempts

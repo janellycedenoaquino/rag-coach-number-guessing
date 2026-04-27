@@ -1,47 +1,44 @@
 import json
 import os
+from datetime import datetime
 
-LEADERBOARD_FILE = os.path.join(os.path.dirname(__file__), "leaderboard.json")
+HISTORY_FILE = os.path.join(os.path.dirname(__file__), "player_history.json")
 
 
-def load_leaderboard():
-    """Load the leaderboard from disk.
-
-    Returns:
-        List of entry dicts with keys: name, difficulty, attempts, score.
-        Returns an empty list if the file does not exist or cannot be parsed.
-    """
-    if not os.path.exists(LEADERBOARD_FILE):
-        return []
+def _load_all_history() -> dict:
+    if not os.path.exists(HISTORY_FILE):
+        return {}
     try:
-        with open(LEADERBOARD_FILE, "r") as f:
+        with open(HISTORY_FILE, "r") as f:
             return json.load(f)
     except Exception:
-        return []
+        return {}
 
 
-def save_to_leaderboard(name: str, difficulty: str, attempts: int, score: int):
+def load_player_history(name: str) -> list:
+    """Return the list of past games for a player, newest first.
+
+    Returns an empty list if the player has no history.
     """
-    Save or update a player's score on the leaderboard.
+    all_history = _load_all_history()
+    games = all_history.get(name.lower(), [])
+    return list(reversed(games))
 
-    Names are matched case-insensitively. An existing entry is only replaced
-    if the new score is strictly higher. The leaderboard is capped at 5 entries.
 
-    Returns:
-        True if the entry was saved or updated, False if the existing score was equal or higher.
+def save_game_to_history(name: str, game_entry: dict) -> None:
+    """Append a completed game entry to the player's history.
+
+    game_entry should contain: date, difficulty, secret, guess_log,
+    score, attempts, won, coach_review.
     """
-    entries = load_leaderboard()
-    existing = next((e for e in entries if e["name"].lower() == name.lower()), None)
-    if existing:
-        if score <= existing["score"]:
-            return False
-        entries.remove(existing)
-    entries.append({"name": name, "difficulty": difficulty, "attempts": attempts, "score": score})
-    entries.sort(key=lambda e: e["score"], reverse=True)
-    entries = entries[:5]
-    with open(LEADERBOARD_FILE, "w") as f:
-        json.dump(entries, f)
-    return True
+    all_history = _load_all_history()
+    key = name.lower()
+    if key not in all_history:
+        all_history[key] = []
+    game_entry["date"] = datetime.now().strftime("%Y-%m-%d %H:%M")
+    all_history[key].append(game_entry)
+    with open(HISTORY_FILE, "w") as f:
+        json.dump(all_history, f)
 
 
 def get_range_for_difficulty(difficulty: str):
