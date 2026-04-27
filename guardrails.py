@@ -1,4 +1,7 @@
+import logging
 import re
+
+logger = logging.getLogger(__name__)
 
 FALLBACK_TIP = "Think about what range you've eliminated so far and aim for the midpoint."
 FALLBACK_REVIEW = "Keep practicing — focus on using binary search from your very first guess."
@@ -22,6 +25,10 @@ def validate_response(response: str, secret: int) -> tuple:
     numbers = _extract_numbers(response)
     for n in numbers:
         if abs(n - secret) <= 2:
+            logger.warning(
+                "Guardrail blocked AI response: contained %d, within ±2 of secret; substituted fallback",
+                n,
+            )
             return False, FALLBACK_TIP
     return True, response
 

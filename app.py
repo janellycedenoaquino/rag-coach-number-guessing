@@ -1,3 +1,4 @@
+import logging
 import random
 import streamlit as st
 from logic_utils import (
@@ -6,6 +7,11 @@ from logic_utils import (
 )
 from styles import MAIN_CSS, SECTION_LABEL_HTML, info_panel_html, debug_panel_html
 from ai_coach import get_mid_game_tip, get_postgame_review
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
+)
 
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 st.html(MAIN_CSS)

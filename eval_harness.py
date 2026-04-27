@@ -5,8 +5,15 @@ Runs predefined game scenarios through the full coach + guardrail pipeline
 and prints a structured pass/fail summary. Run with: python3 eval_harness.py
 """
 
+import logging
+
 from ai_coach import get_mid_game_tip, get_postgame_review
 from guardrails import validate_response, sanitize_prompt, FALLBACK_TIP
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
+)
 
 # ─── SCENARIOS ─────────────────────────────────────────────────────────────────
 # Each scenario represents a real game state to test the coach against.

@@ -4,6 +4,13 @@ A Streamlit number-guessing game with a real-time AI coach that watches your pla
 
 **Why it matters.** Any AI helper that knows something the user shouldn't see — a quiz answer, a salary number, a confidential document — can leak it under the right phrasing. A guessing game with a known secret is a small, fully-controlled lab for testing that exact failure and the guardrails that prevent it. The patterns here (input redaction, output validation, fallbacks, RAG over a tiny knowledge base, and a deterministic eval harness) transfer directly to higher-stakes systems where a leak is more expensive than losing a round.
 
+### 🔎 At a glance
+
+- **Stack:** Python · Streamlit · Ollama (`llama3.2`) — runs entirely on your machine, no API keys
+- **AI feature:** rule-based RAG over 5 strategy docs, retrieved per-guess from game state
+- **Reliability:** input redaction + ±2 output guardrail + 32 pytest cases + 12-scenario eval harness + structured logging
+- **Where to start reading:** [Architecture](#%EF%B8%8F-architecture) → [`ai_coach.py`](ai_coach.py) → [`guardrails.py`](guardrails.py) → run `python3 eval_harness.py`
+
 ---
 
 ## 📦 Base Project
@@ -143,6 +150,19 @@ The ±2 rule caught `44` and substituted the safe fallback before the player saw
 **What worked:** the ±2 guardrail caught at least one real leak during development where the model suggested a number within range of the secret. The rule-based retriever consistently picked the right doc for low-attempt panic scenarios, which was the case I was most worried about.
 
 **What didn't / what I learned:** `llama3.2` occasionally suggested a specific *range* like "between 40 and 45" instead of a single number — the current guardrail only catches literal numbers, so it could in theory leak via ranges. Documented as a known limitation in `model_card.md`.
+
+---
+
+## 👀 Human Evaluation
+
+The system has two layers of human oversight beyond the automated tests:
+
+- **Player as in-the-loop reviewer.** Every coach tip is read by a human (the player) before they decide their next guess. The architecture diagram shows this as the dotted `Show result → Player` feedback arrow. If the coach's tip is wrong, vague, or unhelpful, the player simply ignores it — no tip can force a bad move.
+- **Hand-curated evaluation scenarios.** I wrote the six coach scenarios in [`eval_harness.py`](eval_harness.py) myself, each modeled on a real game pattern I'd run into during play (the "anchoring near the low edge" scenario in Sample Interaction #1 came from a game where I got stuck doing exactly that). Every scenario reflects a failure mode I wanted to verify the coach handles — not auto-generated noise.
+
+**One real catch during development:** while testing, the model returned a tip saying `"try 43"` when the secret was `42`. The original `validate_response` only blocked the exact secret, so `43` slipped through. That single observation is the entire reason the ±2 buffer exists today — the corresponding test case in [`tests/test_guardrails.py`](tests/test_guardrails.py) (`blocks number within +2 of secret`) was added the same day, and is now covered by the [`eval_harness.py`](eval_harness.py) guardrail cases.
+
+**Where logs help.** With logging now wired in ([guardrails.py:21](guardrails.py#L21), [ai_coach.py:78,114](ai_coach.py#L78)), every guardrail block and every Ollama failure leaves a record in the terminal — so a human reviewer can spot patterns ("the model leaks more often on Hard mode") without re-running the whole game.
 
 ---
 

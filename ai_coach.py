@@ -1,6 +1,9 @@
+import logging
 import os
 import ollama
 from guardrails import sanitize_prompt, validate_response, FALLBACK_TIP, FALLBACK_REVIEW
+
+logger = logging.getLogger(__name__)
 
 KNOWLEDGE_BASE_DIR = os.path.join(os.path.dirname(__file__), "knowledge_base")
 MODEL = "llama3.2"
@@ -76,6 +79,7 @@ def get_mid_game_tip(guess_log: list, difficulty: str, attempts_left: int, secre
         safe, result = validate_response(raw, secret)
         return result
     except Exception:
+        logger.exception("Mid-game tip generation failed (Ollama unavailable or model error); returning FALLBACK_TIP")
         return FALLBACK_TIP
 
 
@@ -111,4 +115,5 @@ def get_postgame_review(guess_log: list, secret: int, difficulty: str, won: bool
         response = ollama.chat(model=MODEL, messages=[{"role": "user", "content": prompt}])
         return response["message"]["content"].strip()
     except Exception:
+        logger.exception("Post-game review generation failed (Ollama unavailable or model error); returning FALLBACK_REVIEW")
         return FALLBACK_REVIEW
