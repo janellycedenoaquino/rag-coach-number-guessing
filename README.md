@@ -231,7 +231,7 @@ The system has two layers of human oversight beyond the automated tests:
 
 ## 🎬 Loom Walkthrough
 
-📺 **[Loom video link — TODO before submission]**
+📺 **[Watch the walkthrough on Loom](https://www.loom.com/share/95c5734fcd894e439ea4ff279ece4ae5)**
 
 The walkthrough covers:
 - End-to-end run with 2–3 different inputs across difficulty levels
@@ -245,4 +245,4 @@ The walkthrough covers:
 
 Building this on top of Module 1's debugging exercise was the right call — I already understood every line of the game, so my attention could go to the AI layer instead of fighting Streamlit reruns again. The biggest surprise was how much guardrail design matters: my first version of `validate_response` only blocked the exact secret, and it took one accidental "try 43" from the model (with secret 42) to convince me the ±2 buffer was necessary. The biggest constraint was deciding *not* to add a vector database — every tutorial pushes you toward one, but with 5 documents the rule-based retriever is simpler, faster, and easier to explain to someone reading the code. As an AI engineer, this project taught me that the interesting work is rarely the model call itself — it's the layers around it: what you put in the prompt, what you do with the response, and how you prove the system behaves the way you claim it does.
 
-See [`model_card.md`](model_card.md) for the full ethics and limitations write-up.
+See [`model_card.md`](model_card.md) for the full ethics and limitations write-up, and [`portfolio_reflection.md`](portfolio_reflection.md) for the one-paragraph "what this project says about me as an AI engineer" portfolio entry.

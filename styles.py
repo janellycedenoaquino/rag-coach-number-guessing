@@ -430,66 +430,6 @@ SECTION_LABEL_HTML = """
 </div>
 """
 
-LEADERBOARD_CSS = """
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Oswald:wght@700&display=swap');
-.lb-title {
-  font-family: 'Bangers', cursive;
-  font-size: 30px;
-  text-shadow: 3px 3px 0 #1a0a1e;
-  letter-spacing: 2px;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-[data-testid="stSidebar"] .lb-title { color: #ffe44d !important; }
-.lb-entry {
-  background: #ffffff;
-  border: 3px solid #1a0a1e;
-  padding: 8px 12px;
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 4px 4px 0 #1a0a1e;
-  transition: transform 0.1s, box-shadow 0.1s;
-  cursor: default;
-}
-.lb-entry:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #1a0a1e; }
-.lb-entry.first { background: #ffe44d; }
-.lb-num {
-  font-family: 'Bangers', cursive;
-  font-size: 24px;
-  text-shadow: 2px 2px 0 rgba(0,0,0,0.15);
-  width: 28px;
-  flex-shrink: 0;
-}
-[data-testid="stSidebar"] .lb-num { color: #ff2d78 !important; }
-.lb-name { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 13px; flex: 1; color: #1a0a1e; }
-.lb-name small { font-size: 10px; font-weight: 400; color: #555; }
-.lb-pts { font-family: 'Bangers', cursive; font-size: 19px; letter-spacing: 1px; }
-[data-testid="stSidebar"] .lb-pts { color: #9b2cfa !important; }
-</style>
-"""
-
-
-def leaderboard_html(entries):
-    if entries:
-        rows = ""
-        for i, entry in enumerate(entries, start=1):
-            cls = "lb-entry first" if i == 1 else "lb-entry"
-            rows += f"""
-<div class="{cls}">
-  <div class="lb-num">{i}.</div>
-  <div class="lb-name">{entry['name']}<br><small>{entry['difficulty']} · {entry['attempts']} attempts</small></div>
-  <div class="lb-pts">{entry['score']} PTS</div>
-</div>"""
-    else:
-        rows = '<p style="font-family:\'Arial Narrow\',Arial,sans-serif;font-size:12px;color:#1a0a1e;font-weight:700;">No scores yet. Win a game to get on the board!</p>'
-    return f"{LEADERBOARD_CSS}<div class=\"lb-title\">🏆 LEADERBOARD</div>{rows}"
-
-
 def info_panel_html(low, high, attempts_left):
     return f"""
 <style>
