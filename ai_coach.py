@@ -52,16 +52,67 @@ def _format_guess_log(guess_log: list) -> str:
     return "\n".join(lines)
 
 
-def get_mid_game_tip(guess_log: list, difficulty: str, attempts_left: int, secret: int) -> str:
+def _draft_tip(prompt: str) -> str:
+    """Single Ollama call producing a candidate tip from a fully-built prompt."""
+    response = ollama.chat(model=MODEL, messages=[{"role": "user", "content": prompt}])
+    return response["message"]["content"].strip()
+
+
+def _critique_tip(tip: str, difficulty: str, guess_count: int, secret: int) -> tuple:
     """
-    Return a real-time coaching tip based on the player's current game state.
+    Second LLM pass: review a candidate tip and flag if it (a) suggests specific numbers,
+    (b) reveals the secret, or (c) is vague/not actionable.
+
+    Returns (is_ok: bool, reason: str). On any error, defaults to OK so the loop never blocks
+    a play session — the guardrail layer is the final safety net.
+    """
+    critique_prompt = sanitize_prompt(
+        f"You are reviewing a coaching tip for a number guessing game.\n"
+        f"GAME CONTEXT: Difficulty {difficulty}, {guess_count} guess(es) made.\n"
+        f"TIP TO REVIEW: \"{tip}\"\n\n"
+        f"Flag this tip if it does ANY of the following:\n"
+        f"1. Suggests a specific number to guess (e.g. \"try 30\", \"go with 42\").\n"
+        f"2. Hints at or reveals the secret in any way.\n"
+        f"3. Is too vague to act on (e.g. \"keep trying\", \"think harder\").\n\n"
+        f"Respond with EXACTLY one of these formats — no other text:\n"
+        f"OK\n"
+        f"BAD: <one short sentence saying which rule was broken>",
+        secret,
+    )
+
+    try:
+        verdict = _draft_tip(critique_prompt)
+        upper = verdict.upper().lstrip()
+        if upper.startswith("OK"):
+            return True, ""
+        if upper.startswith("BAD"):
+            reason = verdict.split(":", 1)[1].strip() if ":" in verdict else "unspecified"
+            return False, reason
+        logger.warning("Critic returned unexpected verdict; treating as OK: %s", verdict[:80])
+        return True, ""
+    except Exception:
+        logger.exception("Critique call failed; treating tip as OK and falling through to guardrail")
+        return True, ""
+
+
+def get_mid_game_tip(guess_log: list, difficulty: str, attempts_left: int, secret: int) -> dict:
+    """
+    Return a real-time coaching tip via a self-critique agent loop.
     The secret is used only to run guardrails — it is never placed in the prompt.
+
+    Pipeline: draft → critique → (regenerate if BAD) → guardrail → final.
+
+    Returns a dict:
+        {
+            "final": str,        # tip text shown to the player
+            "trace": list[dict], # ordered reasoning steps for the UI expander
+        }
     """
     guess_count = len(guess_log)
     context = _retrieve(difficulty, guess_count, attempts_left)
     low, high = {"Easy": (1, 20), "Normal": (1, 50), "Hard": (1, 100)}[difficulty]
 
-    prompt = sanitize_prompt(
+    base_prompt = sanitize_prompt(
         f"You are a concise number guessing game coach. Give ONE tip in 2-3 sentences max.\n\n"
         f"STRATEGY REFERENCE:\n{context}\n\n"
         f"GAME STATE:\n"
@@ -73,14 +124,37 @@ def get_mid_game_tip(guess_log: list, difficulty: str, attempts_left: int, secre
         secret,
     )
 
+    trace = []
+
     try:
-        response = ollama.chat(model=MODEL, messages=[{"role": "user", "content": prompt}])
-        raw = response["message"]["content"].strip()
-        safe, result = validate_response(raw, secret)
-        return result
+        draft = _draft_tip(base_prompt)
+        trace.append({"step": "draft", "content": draft})
+
+        ok, reason = _critique_tip(draft, difficulty, guess_count, secret)
+        trace.append({"step": "critique", "content": "OK" if ok else f"BAD: {reason}"})
+
+        if not ok:
+            regen_prompt = sanitize_prompt(
+                base_prompt
+                + f"\n\nIMPORTANT: A reviewer flagged your previous attempt because: {reason}. "
+                f"Rewrite the tip without that issue. Strategy only — no specific numbers.",
+                secret,
+            )
+            current = _draft_tip(regen_prompt)
+            trace.append({"step": "regenerate", "content": current})
+        else:
+            current = draft
+
+        safe, result = validate_response(current, secret)
+        trace.append({"step": "guardrail", "content": "passed" if safe else "blocked — substituted fallback"})
+        trace.append({"step": "final", "content": result})
+        return {"final": result, "trace": trace}
+
     except Exception:
         logger.exception("Mid-game tip generation failed (Ollama unavailable or model error); returning FALLBACK_TIP")
-        return FALLBACK_TIP
+        trace.append({"step": "error", "content": "Ollama call failed; using static fallback"})
+        trace.append({"step": "final", "content": FALLBACK_TIP})
+        return {"final": FALLBACK_TIP, "trace": trace}
 
 
 def get_postgame_review(guess_log: list, secret: int, difficulty: str, won: bool) -> str:

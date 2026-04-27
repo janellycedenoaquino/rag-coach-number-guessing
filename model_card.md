@@ -15,6 +15,7 @@ For full setup, architecture, and sample interactions, see [`README.md`](README.
 | Runtime | [Ollama](https://ollama.com/), local |
 | Coach output | Mid-game strategy tip + post-game review (English text only) |
 | Retrieval | Rule-based selection from 5 plain-text strategy docs in [`knowledge_base/`](knowledge_base/) |
+| Agent loop | Mid-game tip uses a draft → critique → (optional regenerate) → guardrail chain; intermediate steps are observable in the UI and harness output |
 | Safety layer | Input redaction (`sanitize_prompt`) + output validation (`validate_response`) in [`guardrails.py`](guardrails.py) |
 | Reliability | 32 pytest cases + 12-scenario [`eval_harness.py`](eval_harness.py) + structured logging |
 
@@ -48,6 +49,8 @@ For full setup, architecture, and sample interactions, see [`README.md`](README.
 5. **English-only.** No localization, no support for non-English number formats. A player using a locale that writes "1.000" for "one thousand" would hit `parse_guess` errors; the coach would not intervene.
 
 6. **Fallback is generic.** When Ollama is unreachable or the guardrail blocks output, the player sees a static `FALLBACK_TIP` ([`guardrails.py:6`](guardrails.py#L6)). It's intentionally simple but it means a degraded run looks identical to a failure.
+
+7. **Agent loop adds latency.** The mid-game coach runs at minimum two Ollama calls per tip (draft + critique) and three when the critic flags the draft (draft + critique + regenerate). On a local 3B model this adds ~2-4 seconds vs the single-call version. Acceptable for a turn-based guessing game; would need batching or async work for any real-time use case. See "Agentic Workflow" in [`README.md`](README.md) for details.
 
 ---
 

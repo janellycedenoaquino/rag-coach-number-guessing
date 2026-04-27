@@ -79,6 +79,46 @@ Five short docs and a clear rule set don't need cosine similarity. The retrieval
 
 ---
 
+## 🤖 Agentic Critique Loop
+
+The mid-game coach is not a single LLM call. [`get_mid_game_tip()`](ai_coach.py) runs a three-stage agent loop with observable intermediate steps:
+
+```
+Player guesses
+   ↓
+[1. Draft]      → coach LLM generates a candidate tip
+   ↓
+[2. Critique]   → reviewer LLM checks: "suggests numbers? leaks secret? not actionable?"
+   ↓                 ├── OK → continue
+   ↓                 └── BAD: <reason> → regenerate with the reason fed back into the prompt
+   ↓
+[3. Guardrail]  → hard ±2 check on the final text (final safety net)
+   ↓
+Final tip displayed in the UI + reasoning trace shown in a "🤖 Coach reasoning" expander
+```
+
+### What this earns the player
+
+- **The critic is a softer first filter** than the guardrail. It catches "vague / not actionable / suggests-a-number" issues that aren't safety bugs but produce bad coaching. The guardrail still runs after, as the hard backstop.
+- **Regeneration uses the critic's feedback.** The retry prompt includes the exact reason the first draft was flagged — so the model isn't just rolling the dice, it's responding to specific feedback.
+
+### Observable behavior
+
+In [`eval_harness.py`](eval_harness.py) output, every coach scenario now prints its agent step sequence:
+
+```
+PASS  [3/6] Hard — first guess, needs binary search guidance
+        Agent steps: draft → critique → regenerate → guardrail → final (REGENERATED)
+```
+
+In the live app, players can open the **🤖 Coach reasoning** expander under any tip to see the full draft → critique → regenerate → guardrail → final chain.
+
+### Cost / trade-off
+
+Two-to-three Ollama calls per tip instead of one. With local `llama3.2`, that's a few seconds of added latency — acceptable for a turn-based game. Documented in [`model_card.md`](model_card.md) under "Limitations".
+
+---
+
 ## 🛠️ Setup
 
 ### Prerequisites

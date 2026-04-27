@@ -148,14 +148,22 @@ def run_coach_scenarios():
                 result = get_postgame_review(
                     s["guess_log"], s["secret"], s["difficulty"], s["won"]
                 )
+                trace = None
             else:
-                result = get_mid_game_tip(
+                coach_out = get_mid_game_tip(
                     s["guess_log"], s["difficulty"], s["attempts_left"], s["secret"]
                 )
+                result = coach_out["final"]
+                trace = coach_out["trace"]
 
             if result and result != FALLBACK_TIP and len(result) > 10:
                 print(f"  PASS  {label}")
                 print(f"        Response: {result[:120].strip()}{'...' if len(result) > 120 else ''}")
+                if trace:
+                    steps = " → ".join(t["step"] for t in trace)
+                    regenerated = any(t["step"] == "regenerate" for t in trace)
+                    suffix = " (REGENERATED)" if regenerated else ""
+                    print(f"        Agent steps: {steps}{suffix}")
                 passed += 1
             else:
                 print(f"  WARN  {label}")

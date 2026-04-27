@@ -93,6 +93,7 @@ if st.session_state.difficulty != difficulty:
     st.session_state.guess_log = []
     st.session_state.history_saved = False
     st.session_state.coach_tip = ""
+    st.session_state.coach_trace = []
     st.session_state.coach_review = ""
 
 if "secret" not in st.session_state:
@@ -111,6 +112,8 @@ if "guess_log" not in st.session_state:
     st.session_state.guess_log = []
 if "coach_tip" not in st.session_state:
     st.session_state.coach_tip = ""
+if "coach_trace" not in st.session_state:
+    st.session_state.coach_trace = []
 if "coach_review" not in st.session_state:
     st.session_state.coach_review = ""
 
@@ -149,6 +152,7 @@ if new_game:
     st.session_state.guess_log = []
     st.session_state.history_saved = False
     st.session_state.coach_tip = ""
+    st.session_state.coach_trace = []
     st.session_state.coach_review = ""
     st.success("New game started.")
     st.rerun()
@@ -239,12 +243,14 @@ if submit:
             st.rerun()
         else:
             with st.spinner("🧠 Coach is thinking..."):
-                st.session_state.coach_tip = get_mid_game_tip(
+                coach_result = get_mid_game_tip(
                     st.session_state.guess_log,
                     difficulty,
                     attempt_limit - st.session_state.attempts,
                     st.session_state.secret,
                 )
+                st.session_state.coach_tip = coach_result["final"]
+                st.session_state.coach_trace = coach_result["trace"]
 
 # ─── PANELS ────────────────────────────────────────────────────────────────────
 attempts_left = attempt_limit - st.session_state.attempts
@@ -256,6 +262,19 @@ if st.session_state.guess_log:
 
 if st.session_state.coach_tip and st.session_state.status == "playing":
     st.info(f"🧠 **Coach's Tip**\n\n{st.session_state.coach_tip}")
+    if st.session_state.coach_trace:
+        with st.expander("🤖 Coach reasoning (draft → critique → final)"):
+            step_icons = {
+                "draft": "📝",
+                "critique": "🔍",
+                "regenerate": "♻️",
+                "guardrail": "🛡️",
+                "final": "✅",
+                "error": "⚠️",
+            }
+            for entry in st.session_state.coach_trace:
+                icon = step_icons.get(entry["step"], "•")
+                st.markdown(f"{icon} **{entry['step'].capitalize()}** — {entry['content']}")
 
 debug_placeholder.html(debug_panel_html(
     st.session_state.secret,
