@@ -1,4 +1,4 @@
-# 🎮 Glitchy Guesser — AI Strategy Coach
+# 🎮 RAG Coach: Number Guessing
 
 A Streamlit number-guessing game with a real-time AI coach that watches your play, retrieves the right strategy from a small knowledge base, and explains *how to think* about your next guess — without ever leaking the secret number.
 

@@ -1,6 +1,6 @@
-# Model Card: Glitchy Guesser AI Coach
+# Model Card — RAG Coach: Number Guessing
 
-This document covers the AI coaching layer of **Glitchy Guesser**, a number-guessing game extended with a real-time strategy coach. It answers the Section 5 reflection prompts — limitations, misuse risk, testing surprises, and AI collaboration during development — and records the design decisions that shaped the system.
+This document covers the AI coaching layer of **RAG Coach: Number Guessing**, a number-guessing game extended with a real-time strategy coach. It answers the Section 5 reflection prompts — limitations, misuse risk, testing surprises, and AI collaboration during development — and records the design decisions that shaped the system.
 
 For full setup, architecture, and sample interactions, see [`README.md`](README.md). For the original Module 1 debugging reflection that fed into this build, see [`reflection.md`](reflection.md).
 
@@ -10,7 +10,7 @@ For full setup, architecture, and sample interactions, see [`README.md`](README.
 
 | Field | Value |
 |---|---|
-| System name | Glitchy Guesser AI Coach |
+| System name | RAG Coach: Number Guessing |
 | Underlying model | `llama3.2` (3B parameters, instruction-tuned) |
 | Runtime | [Ollama](https://ollama.com/), local |
 | Coach output | Mid-game strategy tip + post-game review (English text only) |

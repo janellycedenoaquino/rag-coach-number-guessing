@@ -40,6 +40,15 @@ MAIN_CSS = """
     font-weight: 700 !important;
     letter-spacing: 1px !important;
 }
+/* Allow Streamlit's Material icon ligatures to render (expander chevron, etc.) */
+[data-testid="stSidebar"] [data-testid="stIconMaterial"],
+[data-testid="stSidebar"] span[class*="material-symbols"],
+[data-testid="stSidebar"] span[class*="material-icons"] {
+    font-family: 'Material Symbols Rounded', 'Material Symbols Outlined', 'Material Icons' !important;
+    font-weight: normal !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+}
 [data-testid="stSidebar"] p.config-label {
     color: #9b2cfa !important;
 }
@@ -56,51 +65,87 @@ MAIN_CSS = """
     border-style: dashed !important;
 }
 /* ─── CONFIG BOX ─── */
-[data-testid="stSidebar"] [data-testid="element-container"]:has(.config-label),
-[data-testid="stSidebar"] [data-testid="element-container"]:has([data-testid="stSelectbox"]),
-[data-testid="stSidebar"] [data-testid="element-container"]:has(.stat-pill) {
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-}
-[data-testid="stSidebar"] [data-testid="stMarkdownContainer"]:has(.config-label) {
+[data-testid="stSidebar"] .st-key-settings_box {
     background: #fff9f0 !important;
-    border-top: 4px solid #1a0a1e !important;
-    border-left: 4px solid #1a0a1e !important;
-    border-right: 4px solid #1a0a1e !important;
-    padding: 10px 14px 0 14px !important;
+    border: 4px solid #1a0a1e !important;
+    box-shadow: 5px 5px 0 #1a0a1e !important;
+    padding: 14px 14px 16px 14px !important;
+    margin-bottom: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 14px !important;
+    text-align: center !important;
 }
-[data-testid="stSidebar"] [data-testid="stSelectbox"] {
-    background: #fff9f0 !important;
-    border-left: 4px solid #1a0a1e !important;
-    border-right: 4px solid #1a0a1e !important;
-    padding: 6px 14px 8px 14px !important;
+[data-testid="stSidebar"] .st-key-settings_box [data-testid="stElementContainer"],
+[data-testid="stSidebar"] .st-key-settings_box [data-testid="element-container"] {
+    width: 100% !important;
+    text-align: center !important;
+}
+[data-testid="stSidebar"] .st-key-settings_box [data-testid="stElementContainer"],
+[data-testid="stSidebar"] .st-key-settings_box [data-testid="element-container"] {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+[data-testid="stSidebar"] .st-key-settings_box [data-testid="stButtonGroup"] {
+    background: transparent !important;
     overflow: visible !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
-[data-testid="stSidebar"] [data-testid="stSelectbox"] > div > div {
+/* Streamlit's segmented_control puts the actual buttons inside a [data-baseweb="button-group"] wrapper
+   with column-gap:0 baked in — that's the one we have to override, not stButtonGroup itself. */
+[data-testid="stSidebar"] .st-key-settings_box [data-testid="stButtonGroup"] [data-baseweb="button-group"] {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    column-gap: 8px !important;
+    width: fit-content !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+}
+[data-testid="stSidebar"] [data-testid="stButtonGroup"] [data-testid^="stBaseButton-segmented_control"] {
     background: #ffe44d !important;
-    border: 3px solid #1a0a1e !important;
+    border: 2px solid #1a0a1e !important;
     border-radius: 0 !important;
-    box-shadow: 3px 3px 0 #1a0a1e !important;
+    box-shadow: 2px 2px 0 #1a0a1e !important;
     font-family: Impact, 'Arial Narrow', sans-serif !important;
-    font-size: 18px !important;
-    letter-spacing: 2px !important;
+    font-size: 13px !important;
+    letter-spacing: 1px !important;
     color: #1a0a1e !important;
-    min-height: 45px !important;
+    padding: 8px 4px !important;
+    flex: 0 0 70px !important;
+    width: 70px !important;
+    max-width: none !important;
+    min-height: 36px !important;
+    height: auto !important;
+    text-transform: uppercase !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+    text-overflow: clip !important;
 }
-[data-testid="stSidebar"] [data-testid="stSelectbox"] span {
+[data-testid="stSidebar"] [data-testid="stButtonGroup"] [data-testid^="stBaseButton-segmented_control"] * {
+    background: transparent !important;
     color: #1a0a1e !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: none !important;
+}
+[data-testid="stSidebar"] [data-testid="stButtonGroup"] [data-testid="stBaseButton-segmented_control"]:hover {
+    background: #fff176 !important;
+    transform: translate(-1px, -1px) !important;
+    box-shadow: 3px 3px 0 #1a0a1e !important;
+}
+[data-testid="stSidebar"] [data-testid="stButtonGroup"] [data-testid="stBaseButton-segmented_controlActive"] {
+    background: #ffc700 !important;
+    box-shadow: inset 0 -5px 0 #ff2d78 !important;
 }
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"]:has(.stat-pill) {
-    background: #fff9f0 !important;
-    border-left: 4px solid #1a0a1e !important;
-    border-right: 4px solid #1a0a1e !important;
-    border-bottom: 4px solid #1a0a1e !important;
-    padding: 6px 14px 12px 14px !important;
-    box-shadow: 5px 5px 0 #1a0a1e !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
     overflow: visible !important;
-    margin-bottom: 16px !important;
 }
 /* ─── STAT PILLS ─── */
 .stat-pill {
@@ -372,8 +417,8 @@ footer { color: rgba(26,10,30,0.35) !important; font-style: italic !important; }
 </style>
 <div class="speech-bubble-area">
   <div class="speech-bubble">
-    <div class="game-title">🎮 GAME GLITCH INVESTIGATOR</div>
-    <div class="subtitle">An AI-generated guessing game. Something is off.</div>
+    <div class="game-title">🎮 RAG Coach: Number Guessing</div>
+    <div class="subtitle">An AI strategy coach for number-guessing. Learn to guess smarter.</div>
   </div>
 </div>
 """

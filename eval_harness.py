@@ -203,7 +203,7 @@ def run_guardrail_cases():
 
 
 def main():
-    print("\n🎮 Glitchy Guesser — AI Coaching Evaluation Harness")
+    print("\n🎮 RAG Coach: Number Guessing — AI Coaching Evaluation Harness")
     print("Model: llama3.2 via Ollama\n")
 
     coach_passed, coach_total = run_coach_scenarios()

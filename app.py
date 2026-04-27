@@ -13,32 +13,35 @@ logging.basicConfig(
     format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
 )
 
-st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
+st.set_page_config(page_title="🎮 RAG Coach", page_icon="🎮")
 st.html(MAIN_CSS)
 
 # ─── SIDEBAR SETTINGS ──────────────────────────────────────────────────────────
 st.sidebar.markdown("## ⚙️ SETTINGS!")
-st.sidebar.markdown(
-    '<p class="config-label" style="font-family:\'Oswald\',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#9b2cfa;margin:0;">DIFFICULTY LEVEL</p>',
-    unsafe_allow_html=True,
-)
 
-difficulty = st.sidebar.selectbox(
-    "",
-    ["Easy", "Normal", "Hard"],
-    index=1,
-    label_visibility="collapsed",
-)
+with st.sidebar.container(key="settings_box"):
+    st.markdown(
+        '<p class="config-label" style="font-family:\'Oswald\',sans-serif;font-size:17px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9b2cfa;margin:0 0 6px 0;">DIFFICULTY LEVEL</p>',
+        unsafe_allow_html=True,
+    )
 
-attempt_limit_map = {"Easy": 6, "Normal": 8, "Hard": 5}
-attempt_limit = attempt_limit_map[difficulty]
-low, high = get_range_for_difficulty(difficulty)
+    difficulty = st.segmented_control(
+        "Difficulty",
+        ["Easy", "Normal", "Hard"],
+        default="Normal",
+        selection_mode="single",
+        label_visibility="collapsed",
+    ) or "Normal"
 
-st.sidebar.markdown(
-    f'<span class="stat-pill">Range: {low}–{high}</span>'
-    f'<span class="stat-pill">Attempts: {attempt_limit}</span>',
-    unsafe_allow_html=True,
-)
+    attempt_limit_map = {"Easy": 6, "Normal": 8, "Hard": 5}
+    attempt_limit = attempt_limit_map[difficulty]
+    low, high = get_range_for_difficulty(difficulty)
+
+    st.markdown(
+        f'<span class="stat-pill">Range: {low}–{high}</span>'
+        f'<span class="stat-pill">Attempts: {attempt_limit}</span>',
+        unsafe_allow_html=True,
+    )
 
 # ─── SIGN-IN ───────────────────────────────────────────────────────────────────
 if "player_name" not in st.session_state:
@@ -66,8 +69,10 @@ if past_games:
     st.sidebar.markdown("**📖 Game History**")
     for game in past_games:
         icon = "✅" if game["won"] else "❌"
-        label = f"{icon} {game['difficulty']} · {game['date']}"
+        date_only = game["date"].split(" ")[0]
+        label = f"{icon} {game['difficulty']} · {date_only}"
         with st.sidebar.expander(label):
+            st.markdown(f"**Played:** {game['date']}")
             st.markdown(
                 f"**Score:** {game['score']} &nbsp;|&nbsp; "
                 f"**Attempts:** {game['attempts']}/{attempt_limit_map[game['difficulty']]}"
