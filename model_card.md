@@ -113,9 +113,41 @@ I asked AI to move `check_guess` from `app.py` into `logic_utils.py`. Instead of
 | Mechanism | Result |
 |---|---|
 | `pytest` (game logic + guardrails) | 32 / 32 passing |
-| `eval_harness.py` (6 coach scenarios + 6 guardrail cases) | 12 / 12 passing |
+| `eval_harness.py` (6 coach scenarios + 6 guardrail cases, agent loop) | 12 / 12 passing |
 | Structured logging | WARN on every guardrail block; ERROR + traceback on every Ollama failure |
 | Human evaluation | Player-in-the-loop on every tip; 6 hand-curated scenarios in the harness; one real leak caught during dev (see "Surprised") |
+
+---
+
+## Specialization: Constrained Prompt Behavior
+
+The mid-game coach uses a deliberately constrained prompt — explicit role, length cap (2-3 sentences), explicit "no specific numbers" rule, and a retrieved strategy doc as context. To verify the constraint actually changes behavior, [`comparisons/baseline_vs_constrained.py`](comparisons/baseline_vs_constrained.py) runs the same 4 scenarios through two prompt variants (single Ollama call each, guardrail off) and reports raw model output.
+
+### Aggregate results (`llama3.2`, 4 scenarios)
+
+| Metric | Baseline prompt ("you are a game coach, help them") | Constrained prompt (production) | Delta |
+|---|---|---|---|
+| Avg word count per response | 116.8 | 43.5 | **−63%** |
+| Total numbers mentioned across all runs | 35 | 9 | **−74%** |
+| Numbers within ±2 of secret (would-be guardrail blocks) | 4 | 2 | **−50%** |
+
+The numbers in the table aren't theoretical — they're from one real run committed to [`comparisons/results.md`](comparisons/results.md), which also contains the full text of every output side by side.
+
+### What this proves
+
+- **The constrained prompt isn't decorative.** Stripping the role, length cap, and no-numbers rule produces responses that are 2.7× longer and mention 4× more numbers. The model defaults to verbose, number-heavy output without explicit guidance.
+- **Specialization is doing real safety work.** The baseline produced 4 ±2-leaks in 4 scenarios; the constrained prompt produced 2. The guardrail is still the hard backstop, but the prompt cuts the attack surface in half *before* the guardrail has to fire.
+- **Style is measurably different, not just shorter.** Baseline outputs hedge ("you might want to consider trying somewhere around..."); constrained outputs are imperative ("aim for the midpoint"). Quantifiable via word count + the readable side-by-side in `results.md`.
+
+### How to reproduce
+
+```bash
+# Make sure ollama is running with llama3.2 pulled
+ollama pull llama3.2
+
+# Run the comparison; it writes comparisons/results.md
+python3 comparisons/baseline_vs_constrained.py
+```
 
 ---
 

@@ -95,6 +95,43 @@ def _critique_tip(tip: str, difficulty: str, guess_count: int, secret: int) -> t
         return True, ""
 
 
+def _build_constrained_prompt(guess_log: list, difficulty: str, attempts_left: int, secret: int) -> str:
+    """
+    Build the production "constrained" prompt: includes retrieved strategy doc,
+    explicit role, length cap, and no-specific-numbers rule. Used by the live coach.
+    """
+    guess_count = len(guess_log)
+    context = _retrieve(difficulty, guess_count, attempts_left)
+    low, high = {"Easy": (1, 20), "Normal": (1, 50), "Hard": (1, 100)}[difficulty]
+
+    return sanitize_prompt(
+        f"You are a concise number guessing game coach. Give ONE tip in 2-3 sentences max.\n\n"
+        f"STRATEGY REFERENCE:\n{context}\n\n"
+        f"GAME STATE:\n"
+        f"- Difficulty: {difficulty} (range {low}–{high}, {ATTEMPT_LIMITS[difficulty]} attempts total)\n"
+        f"- Attempts left: {attempts_left}\n"
+        f"- Guess history:\n{_format_guess_log(guess_log)}\n\n"
+        f"Give one specific, actionable tip based on what the player just did. "
+        f"Do NOT guess or suggest specific numbers. Focus on strategy only.",
+        secret,
+    )
+
+
+def _build_baseline_prompt(guess_log: list, difficulty: str, attempts_left: int, secret: int) -> str:
+    """
+    Build the "baseline" prompt: minimal, generic, no retrieval context, no role,
+    no format constraints, no no-numbers rule. Used by the A/B comparison script
+    to demonstrate what the constrained prompt is actually buying us.
+    """
+    low, high = {"Easy": (1, 20), "Normal": (1, 50), "Hard": (1, 100)}[difficulty]
+    return sanitize_prompt(
+        f"You are a game coach. Help a player guessing a secret number "
+        f"between {low} and {high}. They have {attempts_left} attempts left. "
+        f"Guess history: {_format_guess_log(guess_log)}. Help them.",
+        secret,
+    )
+
+
 def get_mid_game_tip(guess_log: list, difficulty: str, attempts_left: int, secret: int) -> dict:
     """
     Return a real-time coaching tip via a self-critique agent loop.
@@ -108,21 +145,8 @@ def get_mid_game_tip(guess_log: list, difficulty: str, attempts_left: int, secre
             "trace": list[dict], # ordered reasoning steps for the UI expander
         }
     """
+    base_prompt = _build_constrained_prompt(guess_log, difficulty, attempts_left, secret)
     guess_count = len(guess_log)
-    context = _retrieve(difficulty, guess_count, attempts_left)
-    low, high = {"Easy": (1, 20), "Normal": (1, 50), "Hard": (1, 100)}[difficulty]
-
-    base_prompt = sanitize_prompt(
-        f"You are a concise number guessing game coach. Give ONE tip in 2-3 sentences max.\n\n"
-        f"STRATEGY REFERENCE:\n{context}\n\n"
-        f"GAME STATE:\n"
-        f"- Difficulty: {difficulty} (range {low}–{high}, {ATTEMPT_LIMITS[difficulty]} attempts total)\n"
-        f"- Attempts left: {attempts_left}\n"
-        f"- Guess history:\n{_format_guess_log(guess_log)}\n\n"
-        f"Give one specific, actionable tip based on what the player just did. "
-        f"Do NOT guess or suggest specific numbers. Focus on strategy only.",
-        secret,
-    )
 
     trace = []
 
