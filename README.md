@@ -56,6 +56,29 @@ The codebase is layered so that all logic lives outside the UI and can be unit-t
 
 ---
 
+## 🧭 Retrieval Strategy (Multi-Source, State-Aware RAG)
+
+The retriever isn't a single-doc lookup. [`_retrieve(difficulty, guess_count, attempts_left)`](ai_coach.py#L15-L39) inspects three signals from live game state and combines up to **two** strategy docs per call (deduped, capped). The matrix:
+
+| Game state | Docs retrieved | Why this combination |
+|---|---|---|
+| **Hard mode + first guess** | `hard_mode_tips.txt` + `binary_search.txt` | Player needs both the "5 attempts is tight" reality and the optimal-play algorithm |
+| **Hard mode + ≤2 attempts left** | `hard_mode_tips.txt` + `common_mistakes.txt` | Panic context + the specific traps that cost games at this point |
+| Easy/Normal + first guess | `binary_search.txt` | Comfortable margin — just teach the optimal strategy |
+| Easy/Normal + mid-game (≤3 guesses) | `hot_cold_hints.txt` | Player has data on the table; teach how to read proximity |
+| Easy/Normal + ≤2 attempts left | `common_mistakes.txt` | Reframe before the player burns the last guesses |
+| Default (no rule fires) | `binary_search.txt` | Always have something useful to say |
+
+### Why multi-doc beats single-doc here
+
+The two Hard-mode rows are where the multi-source enhancement earns its keep. A single-doc retriever forced to pick *one* document for "Hard mode + 1 attempt left" has to choose between teaching strategy (`hard_mode_tips`) and warning about traps (`common_mistakes`) — both are needed at that moment. Combining them gives the model context for a tip that names the trap *and* the corrective action in the same sentence. The cost is one extra doc in the prompt; the benefit is the coach reads situationally instead of generically.
+
+### Why rule-based instead of vector retrieval
+
+Five short docs and a clear rule set don't need cosine similarity. The retrieval rules are deterministic, debuggable (any tip can be traced back to a doc), and zero-dependency — no embedding model, no vector store. See `model_card.md` "Limitations and Biases #1" for what this trades away (subtler player patterns the rules don't anticipate).
+
+---
+
 ## 🛠️ Setup
 
 ### Prerequisites
